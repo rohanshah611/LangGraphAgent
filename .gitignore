@@ -1,0 +1,101 @@
+# ---------------------------
+# Python basics
+# ---------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.pickle
+*.db
+
+# Virtual environments
+venv/
+env/
+.venv/
+*.env
+*.venv
+testvenv/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ---------------------------
+# RAG / Embedding Artifacts
+# ---------------------------
+# Vector store local indexes
+*.faiss
+*.hnsw*
+*.ann
+*.npy
+*.npz
+
+# ChromaDB / LanceDB / Pinecone local dirs
+chroma/
+lancedb/
+index_store/
+vector_store/
+
+# Cache files (LangChain, LangGraph, HuggingFace)
+.cache/
+cache/
+models/
+tmp/
+temp/
+
+# ---------------------------
+# AWS & Cloud
+# ---------------------------
+# AWS credentials (never commit!)
+.aws/
+*.pem
+*.key
+credentials.txt
+
+# Step Functions & Lambda build dirs
+build/
+dist/
+package/
+.zip
+
+# ---------------------------
+# Project-specific exclusions
+# ---------------------------
+# Local datasets, knowledge base documents (keep only samples)
+data/raw/
+data/intermediate/
+data/private/
+data/ingestion/
+experiments/
+*.pdf
+*.docx
+*.pptx
+
+# Logs
+logs/
+*.log
+
+# Configs & secrets
+.env
+*.env.*         # .env.dev, .env.prod, etc.
+secrets.json
+config.yaml
+config.yml
+
+# ---------------------------
+# Node / UI (if you're using Streamlit or frontend)
+# ---------------------------
+node_modules/
+build/
+dist/
+*.lock
+
+# ---------------------------
+# OS / IDE noise
+# ---------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
