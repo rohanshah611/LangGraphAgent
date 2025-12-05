@@ -21,9 +21,9 @@ class PineconeRetrieverTool:
 
         
     def create_retrievers(self, text_key="text") -> VectorStoreRetriever:
-
+        index = self.pc.Index(self.pinecone_index_name)
         vectorstore = PineconeVectorStore(
-            index = self.pinecone_index_name,
+            index = index,
             embedding = self.embeddings,
             namespace = self.namespace,
             text_key = text_key
@@ -39,6 +39,7 @@ class PineconeRetrieverTool:
         docs = retriver.invoke(query)
         return "\n".join([doc.page_content for doc in docs])
     
-    def create_retriver_tool(self):
+    def create_retriver_tool(self) -> Tool:
+        print('test')
         return Tool(name=self.tool_name, description=self.tool_description,func=self.create_retriever_function)
 
