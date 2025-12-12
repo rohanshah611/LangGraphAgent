@@ -105,3 +105,7 @@ Thumbs.db
 # ---------------------------
 depricated_files/
 src/depricated
+notebooks/indexing.ipynb
+notebooks/agentic_rag.ipynb
+notebooks/Agentic_AI_multi_agents.ipynb
+

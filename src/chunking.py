@@ -1,6 +1,7 @@
 from typing import List
 from langchain_community.document_loaders import PyMuPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter, CharacterTextSplitter
+from pathlib import Path
 
 
 class ChunkingManager:
@@ -9,9 +10,12 @@ class ChunkingManager:
         self.chunk_overlap = chunk_overlap
         self.separators = separators
 
-    def recursive_chunking(self, path: str) -> List[str]:
+    def recursive_text_splitter(self, path: str, metadata: dict) -> List[str]:
         docs = PyMuPDFLoader(path).load()
 
+        for doc in docs:
+            doc.metadata.update(metadata)
+            
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=self.chunk_size,
             chunk_overlap=self.chunk_overlap,
@@ -19,3 +23,9 @@ class ChunkingManager:
         )
 
         return splitter.split_documents(docs)
+    
+    
+    
+
+    
+    

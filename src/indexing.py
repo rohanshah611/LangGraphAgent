@@ -1,7 +1,5 @@
 import os
-from typing import Optional, Dict, Any, List
 from dotenv import load_dotenv
-import logging
 from pinecone import Pinecone, ServerlessSpec
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone, ServerlessSpec
@@ -14,7 +12,8 @@ class PineconeManagement:
 
     #utility function 
     def index_exists(self, index_name: str) -> bool:
-        return index_name in self.pc.list_indexes().names()
+        if index_name in self.pc.list_indexes().names():
+            return "Index already exists"
     #utility function 
     def namespace_exists(self, index_name: str, namespace: str) -> bool:
         idx = self.pc.Index(index_name)
@@ -39,10 +38,6 @@ class PineconeManagement:
 
         if not self.index_exists(index_name):
             return "Index does not exist"
-
-        if self.namespace_exists(index_name, namespace):
-            return "Namespace already exists, try a new name for namespace"
-
 
         vector_store = PineconeVectorStore.from_documents(
            documents=chunks,  
