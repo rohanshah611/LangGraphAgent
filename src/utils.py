@@ -16,6 +16,6 @@ class BedrockClientManager:
             model_id=embedding_model
         )
     
-    def get_bedrock_agent_llm(self, bedrock_model_id: str, temperature: float, max_tokens: int, system_prompt: str) -> ChatBedrock:
+    def get_bedrock_agent_llm(self, bedrock_model_id: str, temperature: float, max_tokens: int, system_prompt: None, guardrail_config: None) -> ChatBedrock:
         print("llm invoked")
-        return ChatBedrock(client = self.client,model_id = bedrock_model_id,temperature = temperature,max_tokens = max_tokens,system_prompt = system_prompt)
+        return ChatBedrock(client = self.client,model_id = bedrock_model_id,temperature = temperature,max_tokens = max_tokens,system_prompt = system_prompt, guardrail_config = guardrail_config)
