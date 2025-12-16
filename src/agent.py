@@ -11,6 +11,8 @@ from langgraph.graph import StateGraph, END, START
 from langchain.agents import create_agent
 from langgraph.prebuilt import tools_condition, ToolNode
 from langgraph.checkpoint.memory import MemorySaver
+import streamlit as st
+
 
 # Initialize 
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
@@ -57,9 +59,22 @@ from IPython.display import Image, display
 display(Image(graph.get_graph().draw_mermaid_png()))
 
 
+#Create Local streamlit app
 
-config={"configurable":{"thread_id":"1"}}
-query = "Why might engineers be reluctant to document knowledge later in a program?"
-state = {"messages": [HumanMessage(content=query)]}
-result = graph.invoke(state,config=config)
-print("\n✅ Final Answer:\n", result["messages"][-1].content) 
+### Title of the app
+st.title("Enhanced NASA Chatbot With AWS Bedrock")
+
+## MAin interface for user input
+st.write("Ask any question")
+user_input=st.text_input("You:")
+
+if user_input:
+    config={"configurable":{"thread_id":"1"}}
+    state = {"messages": [HumanMessage(content=user_input)]}
+    result = graph.invoke(state,config=config)
+    st.write("\n✅ Final Answer:\n", result["messages"][-1].content)
+else:
+    st.write("Please provide the user input")
+
+
+
