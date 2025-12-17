@@ -1,6 +1,6 @@
 from utils import BedrockClientManager
 from tools import PineconeRetrieverTool
-from config import aws_region, embedding_model, pinecone_index_name, system_prompt, agent_model, temperature, max_tokens, tool_name, tool_description, pinecone_namespace
+from config import aws_region, embedding_model, pinecone_index_name, system_prompt, agent_model, temperature, max_tokens, tool_name, tool_description, pinecone_namespace, memory_id
 from dotenv import load_dotenv
 load_dotenv() 
 import os
@@ -12,7 +12,11 @@ from langchain.agents import create_agent
 from langgraph.prebuilt import tools_condition, ToolNode
 from langgraph.checkpoint.memory import MemorySaver
 import streamlit as st
+from bedrock_agentcore.runtime import BedrockAgentCoreApp
+from langgraph_checkpoint_aws import AgentCoreMemorySaver, AgentCoreMemoryStore
 
+app = BedrockAgentCoreApp()
+import boto3
 
 # Initialize 
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
@@ -20,8 +24,8 @@ bedrock_client = BedrockClientManager(aws_region = aws_region)
 br_embedding = bedrock_client.get_bedrock_embeddings_llm(embedding_model)
 agent_llm = bedrock_client.get_bedrock_agent_llm(bedrock_model_id = agent_model, temperature = temperature, max_tokens = max_tokens, system_prompt = system_prompt, guardrail_config = None)
 
-#Create retrivers: 
 
+#Create retrivers: 
 retriever = PineconeRetrieverTool(embeddings = br_embedding, namespace = pinecone_namespace, pinecone_api_key = PINECONE_API_KEY, pinecone_index_name = pinecone_index_name, tool_name = tool_name, tool_description = tool_description)
 retriever_tool = retriever.create_retriver_tool()
 tools = [retriever_tool]
@@ -33,7 +37,8 @@ class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
 
 #Initialize Memory
-memory = MemorySaver()
+#memory = MemorySaver()
+memory = AgentCoreMemorySaver(memory_id=memory_id)
 
 #Create LLM Node
 def tool_calling_llm(state:AgentState):
@@ -64,12 +69,11 @@ display(Image(graph.get_graph().draw_mermaid_png()))
 ### Title of the app
 st.title("NASA Chatbot With AWS Bedrock")
 
-## MAin interface for user input
+## Main interface for user input
 st.write("Ask any question")
 user_input=st.text_input("You:")
 
-#None streaming Display
-
+#Non-streaming Display
 if user_input:
     config={"configurable":{"thread_id":"1"}}
     state = {"messages": [HumanMessage(content=user_input)]}
@@ -77,5 +81,4 @@ if user_input:
     st.write("\n✅ Final Answer:\n", result["messages"][-1].content)
 else:
     st.write("Please provide the user input")
-
 

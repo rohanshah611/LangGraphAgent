@@ -127,3 +127,4 @@ tool_name = "nasa_spaceflight_lessons_retriever"
 tool_description = "Retrieves authoritative NASA documents and case studies related to human spaceflight programs, including Apollo and Space Shuttle missions, International Space Station (ISS) operations, and spaceflight safety investigations. The knowledge base covers accident analyses (Apollo 13, Shuttle Columbia), systems engineering and program management lessons from Project Apollo, organizational and communication failures, knowledge capture and institutional memory practices, and ISS technology demonstrations and scientific missions such as the Lightning Imaging Sensor. Use this tool to answer questions about technical failures, risk management, decision-making processes, safety culture, long-duration operations, and lessons learned from historical spaceflight programs."
 namespace = 'default'
 pinecone_index_name = 'nasa-kb2'
+memory_id = "nasa_rag_memory-EbRv6bGRZG"

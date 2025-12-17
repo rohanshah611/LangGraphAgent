@@ -1,6 +1,6 @@
 from utils import BedrockClientManager
 from tools import PineconeRetrieverTool
-from config import aws_region, embedding_model, pinecone_index_name, system_prompt, agent_model, temperature, max_tokens, tool_name, tool_description, pinecone_namespace
+from config import aws_region, embedding_model, pinecone_index_name, system_prompt, agent_model, temperature, max_tokens, tool_name, tool_description, pinecone_namespace, memory_id
 from dotenv import load_dotenv
 load_dotenv() 
 import os
@@ -12,7 +12,10 @@ from langchain.agents import create_agent
 from langgraph.prebuilt import tools_condition, ToolNode
 from langgraph.checkpoint.memory import MemorySaver
 import streamlit as st
+from bedrock_agentcore.runtime import BedrockAgentCoreApp
+from langgraph_checkpoint_aws import AgentCoreMemorySaver, AgentCoreMemoryStore
 
+app = BedrockAgentCoreApp()
 
 # Initialize 
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
@@ -20,8 +23,8 @@ bedrock_client = BedrockClientManager(aws_region = aws_region)
 br_embedding = bedrock_client.get_bedrock_embeddings_llm(embedding_model)
 agent_llm = bedrock_client.get_bedrock_agent_llm(bedrock_model_id = agent_model, temperature = temperature, max_tokens = max_tokens, system_prompt = system_prompt, guardrail_config = None)
 
-#Create retrivers: 
 
+#Create retrivers: 
 retriever = PineconeRetrieverTool(embeddings = br_embedding, namespace = pinecone_namespace, pinecone_api_key = PINECONE_API_KEY, pinecone_index_name = pinecone_index_name, tool_name = tool_name, tool_description = tool_description)
 retriever_tool = retriever.create_retriver_tool()
 tools = [retriever_tool]
@@ -33,7 +36,8 @@ class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
 
 #Initialize Memory
-memory = MemorySaver()
+#memory = MemorySaver()
+memory = AgentCoreMemorySaver(memory_id=memory_id)
 
 #Create LLM Node
 def tool_calling_llm(state:AgentState):
@@ -55,35 +59,45 @@ builder.add_edge("tools","tool_calling_llm")
 ## compile the graph
 graph=builder.compile(checkpointer=memory)
 
-from IPython.display import Image, display
-display(Image(graph.get_graph().draw_mermaid_png()))
+
+@app.entrypoint
+def agent_invocation(payload, context):
+    """Handler for agent invocation in AgentCore runtime with memory support"""
+    print("Received payload:", payload)
+    print("Context:", context)
+    
+    # Extract query from payload
+    query = payload.get("prompt", "No prompt found in input")
+    
+    # Extract or generate actor_id and thread_id
+    actor_id = payload.get("actor_id", "default-user")
+    thread_id = payload.get("thread_id", payload.get("session_id", "default-session"))
+    
+    # Configure memory context
+    config = {
+        "configurable": {
+            "thread_id": thread_id,  # Maps to AgentCore session_id
+            "actor_id": actor_id     # Maps to AgentCore actor_id
+        }
+    }
+    state = {"messages": [HumanMessage(content=query)]}
+    # Invoke the agent with memory
+    result = graph.invoke(state,config=config)
+    
+    # Extract the final answer from the result
+    messages = result.get("messages", [])
+    answer = messages[-1].content if messages else "No response generated"
+    
+    # Return the answer
+    return {
+        "result": answer,
+        "actor_id": actor_id,
+        "thread_id": thread_id
+    }
 
 
-#Create Local streamlit app
-
-### Title of the app
-st.title("NASA Chatbot With AWS Bedrock")
-
-## MAin interface for user input
-st.write("Ask any question")
-user_input=st.text_input("You:")
+if __name__ == "__main__":
+    app.run()
 
 
-#Streaming Display
 
-if user_input:
-    config = {"configurable": {"thread_id": "1"}}
-    state = {"messages": [HumanMessage(content=user_input)]}
-
-    response_placeholder = st.empty()
-    full_response = ""
-
-    for update in graph.stream(state, config, stream_mode="updates"):
-        if "messages" in update:
-            msg = update["messages"][-1]
-            if isinstance(msg, AIMessage):
-                full_response += msg.content
-                response_placeholder.markdown(full_response)
-
-else:
-    st.write("Please provide the user input")

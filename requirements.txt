@@ -32,9 +32,11 @@ unstructured
 pdfminer
 pymupdf
 langchain_aws
+langgraph_checkpoint_aws
 
 pinecone-client==3.2.2 
 langchain-pinecone
 langchain-tavily
 ragas
 streamlit
+bedrock-agentcore
