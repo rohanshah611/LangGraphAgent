@@ -68,14 +68,22 @@ st.title("NASA Chatbot With AWS Bedrock")
 st.write("Ask any question")
 user_input=st.text_input("You:")
 
-#None streaming Display
+
+#Streaming Display
 
 if user_input:
-    config={"configurable":{"thread_id":"1"}}
+    config = {"configurable": {"thread_id": "1"}}
     state = {"messages": [HumanMessage(content=user_input)]}
-    result = graph.invoke(state,config=config)
-    st.write("\n✅ Final Answer:\n", result["messages"][-1].content)
+
+    response_placeholder = st.empty()
+    full_response = ""
+
+    for update in graph.stream(state, config, stream_mode="updates"):
+        if "messages" in update:
+            msg = update["messages"][-1]
+            if isinstance(msg, AIMessage):
+                full_response += msg.content
+                response_placeholder.markdown(full_response)
+
 else:
     st.write("Please provide the user input")
-
-
