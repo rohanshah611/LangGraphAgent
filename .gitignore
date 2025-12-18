@@ -111,3 +111,9 @@ notebooks/
 notebooks/2-OpenAI+Chatbot/2-OpenAI Chatbot/app.py
 notebooks/2-OpenAI+Chatbot/3-Ollama Chatbot/app.py
 src/nb_agent.ipynb
+depricated/nb_chunking.ipynb
+.gitignore
+depricated/nb_evaluate.ipynb
+depricated/nb_indexing.ipynb
+depricated/nb_tools.ipynb
+depricated/nb_utils.ipynb

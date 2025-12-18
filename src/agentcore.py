@@ -37,7 +37,7 @@ class AgentState(TypedDict):
 
 #Initialize Memory
 #memory = MemorySaver()
-memory = AgentCoreMemorySaver(memory_id=memory_id)
+memory = AgentCoreMemorySaver(memory_id=memory_id, region_name = "us-west-2")
 
 #Create LLM Node
 def tool_calling_llm(state:AgentState):
